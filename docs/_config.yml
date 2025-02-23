@@ -27,7 +27,7 @@ twitter_username:
 github_username:  bbernas
 
 # Build settings
-theme: jekyll-theme-slate
+theme: minima
 plugins:
   - jekyll-feed
 
