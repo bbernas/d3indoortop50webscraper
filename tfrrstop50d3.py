@@ -6,7 +6,7 @@ import plotly as px
 import os
 
 #Fully Works: Weight Throw, Shot Put, Pole Vault , High Jump, Triple Jump, Long Jump, Heptathlon, 60 Meters, 200 Meters, 400 Meters
-#In Progress: 800 Meters, Mile, 3000 Meters, 5000 Meters, 4x400 Meters, Distance Medley Relay]
+#In Progress: 800 Meters, Mile, 3000 Meters, 5000 Meters, 4x400 Meters, Distance Medley Relay
 #Not Working: 60 Hurdles
 event = str (input("Enter the event you would like to know top 50 for D3 indoor: "))
 
@@ -76,7 +76,7 @@ def plot_data():
 
     os.remove("eventData.csv") 
     print("eventData.csv removed")
-    
+    fig.write_html("/docs/weight.html")
     fig.show()
 
 if __name__ == "__main__":
