@@ -3,10 +3,11 @@ from bs4 import BeautifulSoup
 import csv
 import pandas as pd
 import plotly as px
+import os
 
-#Fully Works: Weight Throw, Shot Put, Pole Vault , High Jump, Triple Jump, Long Jump, Heptathlon
-#In Progress: 60 Meters,60 Hurdles, 200 Meters, 400 Meters, 
-#Not Working: 800 Meters, 3000 Meters, 5000 Meters, 4x400 Meters, Distance Medley Relay
+#Fully Works: Weight Throw, Shot Put, Pole Vault , High Jump, Triple Jump, Long Jump, Heptathlon, 60 Meters, 200 Meters, 400 Meters
+#In Progress: 800 Meters, Mile, 3000 Meters, 5000 Meters, 4x400 Meters, Distance Medley Relay]
+#Not Working: 60 Hurdles
 event = str (input("Enter the event you would like to know top 50 for D3 indoor: "))
 
 def scrape_event():
@@ -20,7 +21,7 @@ def scrape_event():
     event_section = None
 
     for header in event_headers:
-        if event in header.text: #add event in here when finish
+        if event in header.text: 
             event_section = header
             break
 
@@ -36,8 +37,8 @@ def scrape_event():
 
     with open("eventData.csv", "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["Ranking", "Athlete", "Year", "School", "Mark","FeetMeet", "Meet" , "Date" , "Wind"])  # Adjust headers as needed
-        writer.writerows(data_list)
+        writer.writerow(["Ranking", "Athlete", "Year", "School", "Mark","FeetMeet", "Meet" , "Date" , "Wind"])  
+        writer.writerows(data_list) 
 
     print("Saved to eventData.csv") 
 
@@ -47,26 +48,37 @@ def plot_data():
     data['Mark'] = data["Mark"].str.replace("#", "")
     data['Mark'] = data["Mark"].str.replace("@", "")
     data['Mark'] = data["Mark"].str.replace("(55)", "")
+    
+    if event in ["800 Meters", "Mile", "3000 Meters", "5000 Meters", "4x400 Meters", "Distance Medley Relay"]:
+        data["Mark"] = pd.to_timedelta("00:" + data['Mark']).dt.total_seconds()
+        fig = px.hist_frame(data, x='Athlete', y= "Mark", nbins=100)
+        data_sorted = data.sort_values(by="Mark", ascending=False).reset_index(drop=True)
+        data["color"] = "red"  
+        top_20_marks = data_sorted["Mark"].iloc[:30].values  
+        data.loc[data["Mark"].isin(top_20_marks), "color"] = "blue"
+    
+    if event in ["Weight Throw", "Shot Put", "Pole Vault", "High Jump", "Triple Jump", "Long Jump", "Heptathlon"]:
+        fig = px.hist_frame(data, x='Athlete', y= "Mark", nbins=50)
+        data_sorted = data.sort_values(by="Mark", ascending=False).reset_index(drop=True)
+        data["color"] = "blue"  
+        top_20_marks = data_sorted["Mark"].iloc[:20].values  
+        data.loc[data["Mark"].isin(top_20_marks), "color"] = "red"
+    if event in ["60 Meters", "60 Hurdles", "200 Meters", "400 Meters"]:
+        fig = px.hist_frame(data, x='Athlete', y= "Mark", nbins=50)
+        data_sorted = data.sort_values(by="Mark", ascending=False).reset_index(drop=True)
+        data["color"] = "red"  
+        top_20_marks = data_sorted["Mark"].iloc[:30].values  
+        data.loc[data["Mark"].isin(top_20_marks), "color"] = "blue"
 
-    fig = px.hist_frame(data, x='Athlete', y= "Mark", nbins=50)
-
-    data_sorted = data.sort_values(by="Mark", ascending=False).reset_index(drop=True)
-
-    data["color"] = "blue"  
-    top_20_marks = data_sorted["Mark"].iloc[:20].values  
-
-    data.loc[data["Mark"].isin(top_20_marks), "color"] = "red"
-
-    #histogram with top 20 highlighted in red
-    fig = px.hist_frame(data, x="Athlete",y = 'Mark', nbins=30, color="color", color_discrete_map={"blue": "blue", "red": "red"})
-
-    #fig.update_yaxes(range=[15, 18]) # need to update for each event/field events work fine rn running events aren't
-
+    fig = px.hist_frame(data, x="Athlete",y = 'Mark', nbins=30, color="color", color_discrete_map={"blue": "blue", "red": "red"}) #histogram with top 20 highlighted in red
     fig.update_layout(title=" Performance - Top 20 National Qualifiers Highlighted in Red", xaxis_title="Mark", yaxis_title="Count")
+    fig.update_yaxes(range=[float(data["Mark"].min()) - .5, float(data["Mark"].max()) + .5])
 
+    os.remove("eventData.csv") 
+    print("eventData.csv removed")
+    
     fig.show()
 
 if __name__ == "__main__":
     scrape_event()
     plot_data()
-    
