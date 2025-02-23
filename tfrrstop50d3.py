@@ -73,11 +73,12 @@ def plot_data():
     fig = px.hist_frame(data, x="Athlete",y = 'Mark', nbins=30, color="color", color_discrete_map={"blue": "blue", "red": "red"}) #histogram with top 20 highlighted in red
     fig.update_layout(title=" Performance - Top 20 National Qualifiers Highlighted in Red", xaxis_title="Mark", yaxis_title="Count")
     fig.update_yaxes(range=[float(data["Mark"].min()) - .5, float(data["Mark"].max()) + .5])
+    
+    fig.show()
+    fig.write_html("weight.html")
 
     os.remove("eventData.csv") 
     print("eventData.csv removed")
-    fig.write_html("/docs/weight.html")
-    fig.show()
 
 if __name__ == "__main__":
     scrape_event()
