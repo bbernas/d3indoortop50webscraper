@@ -8,7 +8,7 @@ import os
 #Fully Works: Weight Throw, Shot Put, Pole Vault , High Jump, Triple Jump, Long Jump, Heptathlon, 60 Meters, 200 Meters, 400 Meters
 #In Progress: 800 Meters, Mile, 3000 Meters, 5000 Meters, 4x400 Meters, Distance Medley Relay
 #Not Working: 60 Hurdles
-event = str (input("Enter the event you would like to know top 50 for D3 indoor: "))
+#event = str (input("Enter the event you would like to know top 50 for D3 indoor: "))
 
 def scrape_event():
     url = "https://tf.tfrrs.org/lists/4869/2024_2025_NCAA_Division_III_Indoor_Qualifying?gender=m"
@@ -21,7 +21,7 @@ def scrape_event():
     event_section = None
 
     for header in event_headers:
-        if event in header.text: 
+        if "60 Meters" in header.text: 
             event_section = header
             break
 
@@ -43,6 +43,7 @@ def scrape_event():
     print("Saved to eventData.csv") 
 
 def plot_data():
+    event = "Pole Vault"
     data = pd.read_csv('eventData.csv')
     data['Mark'] = data["Mark"].str.replace("m", "")
     data['Mark'] = data["Mark"].str.replace("#", "")
@@ -71,11 +72,11 @@ def plot_data():
         data.loc[data["Mark"].isin(top_20_marks), "color"] = "blue"
 
     fig = px.hist_frame(data, x="Athlete",y = 'Mark', nbins=30, color="color", color_discrete_map={"blue": "blue", "red": "red"}) #histogram with top 20 highlighted in red
-    fig.update_layout(title=" Performance - Top 20 National Qualifiers Highlighted in Red", xaxis_title="Mark", yaxis_title="Count")
+    fig.update_layout(title= event + " Performance - Top 20 National Qualifiers Highlighted in Red", xaxis_title="Mark", yaxis_title="Count")
     fig.update_yaxes(range=[float(data["Mark"].min()) - .5, float(data["Mark"].max()) + .5])
     
     fig.show()
-    fig.write_html("weight.html")
+    fig.write_html("C:\\Users\\brade\\Desktop\\tfrrsScraper\\d3indoortop50webscraper\\docs\\event.html")
 
     os.remove("eventData.csv") 
     print("eventData.csv removed")
